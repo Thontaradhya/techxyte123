@@ -10,14 +10,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     permissions: read-all
-    env:
-      JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/11.0.21-9/x64
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
@@ -27,14 +21,23 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Setup SonarScanner
-        uses: sonarsource/setup-sonar-scanner@v3
-        with:
-          sonar-scanner-version: '4.7.0.2747'
-          sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-          sonar-organization: ${{ secrets.SONAR_ORGANIZATION }}
-          sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
-          sonar-login: ${{ secrets.SONAR_TOKEN }}
+      - name: Install SonarScanner
+        run: |
+          sudo apt-get install -y unzip
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+          unzip sonar-scanner-cli-4.7.0.2747-linux.zip
+          mv sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
+          echo "export PATH=\$PATH:/opt/sonar-scanner/bin" >> $HOME/.bashrc
+          source $HOME/.bashrc
+          sonar-scanner -v
+        # Fail if the sonar-scanner installation or version check fails
+        if: ${{ failure() }}
 
       - name: SonarQube Scan
-        run: sonar-scanner -X
+        run: |
+          sonar-scanner -X \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
