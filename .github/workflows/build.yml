@@ -28,6 +28,8 @@ jobs:
           unzip sonar-scanner-cli-4.6.2.2472-linux.zip
           export PATH=$PATH:$PWD/sonar-scanner-cli-4.6.2.2472-linux/bin
           sonar-scanner -v
+        # Fail if the sonar-scanner installation or version check fails
+        if: ${{ failure() }}
 
       - name: SonarQube Scan
         run: |
