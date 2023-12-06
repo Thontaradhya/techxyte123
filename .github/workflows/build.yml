@@ -35,10 +35,14 @@ jobs:
         # Fail if the sonar-scanner installation or version check fails
         if: ${{ failure() }}
 
-      - name: SonarQube Scan
+      - name: Debug
         run: |
           which sonar-scanner
           ls -l /opt/sonar-scanner/bin
+          echo $PATH
+
+      - name: SonarQube Scan
+        run: |
           /opt/sonar-scanner/bin/sonar-scanner -X \
             -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.host.url=$SONAR_HOST_URL
