@@ -1,4 +1,4 @@
-name: Build
+name: Build 
 
 on:
   push:
@@ -9,15 +9,10 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      contents: read
-      actions: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Setup JDK
         uses: actions/setup-java@v2
@@ -34,34 +29,12 @@ jobs:
           echo "export PATH=\$PATH:/opt/sonar-scanner/bin" >> $HOME/.bashrc
           source $HOME/.bashrc
           sonar-scanner -v
-        # Fail if the sonar-scanner installation or version check fails
-        if: ${{ failure() }}
-
-  sonarqube_scan:
-    name: SonarQube Scan
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      contents: read
-      actions: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '16'
-
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: '11'
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v1
-        with:
-          sonarLogin: ${{ secrets.SONAR_TOKEN }}
-          sonarHost: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          sonar-scanner \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
