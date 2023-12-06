@@ -14,7 +14,7 @@ jobs:
       JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/11.0.21-9/x64
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      PATH: ${{ runner.tools.sonar-scanner-cli.dir }}/bin:${{ env.PATH }}
+      PATH: ${{ runner.tool_cache }}/sonar-scanner-cli/4.7.0.2747/bin:${{ env.PATH }}
 
     steps:
       - name: Checkout code
@@ -35,7 +35,6 @@ jobs:
           unzip sonar-scanner-cli-4.7.0.2747-linux.zip
           mv sonar-scanner-4.7.0.2747-linux $RUNNER_TOOL_CACHE/sonar-scanner-cli/4.7.0.2747
           echo "export PATH=\$RUNNER_TOOL_CACHE/sonar-scanner-cli/4.7.0.2747/bin:\$PATH" >> $GITHUB_ENV
-          source $GITHUB_ENV
           sonar-scanner -v
 
       - name: Debug
