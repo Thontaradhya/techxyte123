@@ -27,9 +27,9 @@ jobs:
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
           unzip sonar-scanner-cli-4.7.0.2747-linux.zip
           sudo mv sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
-          export PATH=$PATH:/opt/sonar-scanner/bin
           echo "export SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> $GITHUB_ENV
           echo "export SONAR_HOST_URL=${{ secrets.SONAR_HOST_URL }}" >> $GITHUB_ENV
+          echo "export PATH=$PATH:/opt/sonar-scanner/bin" >> $GITHUB_ENV
           source $GITHUB_ENV
           sonar-scanner -v
         # Fail if the sonar-scanner installation or version check fails
@@ -43,6 +43,6 @@ jobs:
 
       - name: SonarQube Scan
         run: |
-          /opt/sonar-scanner/bin/sonar-scanner -X \
+          sonar-scanner -X \
             -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.host.url=$SONAR_HOST_URL
