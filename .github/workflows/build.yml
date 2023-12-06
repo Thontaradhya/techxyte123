@@ -10,6 +10,12 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     permissions: read-all
+    env:
+      JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/11.0.21-9/x64
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      PATH: ${{ runner.tools.sonar-scanner-cli.dir }}/bin:${{ env.PATH }}
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -26,11 +32,9 @@ jobs:
           sudo apt-get install -y unzip
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
           unzip sonar-scanner-cli-4.7.0.2747-linux.zip
-          sudo mv sonar-scanner-4.7.0.2747-linux /opt/sonar-scanner
-          echo "export SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> $HOME/.bashrc
-          echo "export SONAR_HOST_URL=${{ secrets.SONAR_HOST_URL }}" >> $HOME/.bashrc
-          echo "export PATH=$PATH:/opt/sonar-scanner/bin" >> $HOME/.bashrc
-          source $HOME/.bashrc
+          mv sonar-scanner-4.7.0.2747-linux $RUNNER_TOOL_CACHE/sonar-scanner-cli/4.7.0.2747
+          echo "export PATH=\$RUNNER_TOOL_CACHE/sonar-scanner-cli/4.7.0.2747/bin:\$PATH" >> $GITHUB_ENV
+          source $GITHUB_ENV
           sonar-scanner -v
         # Fail if the sonar-scanner installation or version check fails
         if: ${{ failure() }}
@@ -38,7 +42,7 @@ jobs:
       - name: Debug
         run: |
           which sonar-scanner
-          ls -l /opt/sonar-scanner/bin
+          ls -l $RUNNER_TOOL_CACHE/sonar-scanner-cli/4.7.0.2747/bin
           echo $PATH
 
       - name: SonarQube Scan
